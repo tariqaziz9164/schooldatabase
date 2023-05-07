@@ -17,9 +17,9 @@ def create_student_table():
             grade TEXT,
             teacher_name TEXT,
             address TEXT,
-            contact INTEGER,
+            contact TEXT,
             fee INTEGER,
-            driver_contact INTEGER,
+            driver_contact TEXT,
             transport_fee REAL,
             uniform_dues REAL,
             books_dues REAL,
@@ -77,7 +77,7 @@ def create_staff_table():
 def add_student(col1,col2):
         
         with col1:
-            
+            st.header("Add Student Record")
             name = st.text_input("Enter student name",key="name")
             class_ = st.text_input("Enter student class",key = "class_")
             section = st.radio("Student section",['RED','BLUE','PINK','YELLOW','GREEN'],key = "section")
@@ -86,12 +86,12 @@ def add_student(col1,col2):
             teacher_name = st.text_input("Enter teacher name",key = "teacher_name")
             address = st.text_input("Enter student address")
         with col2:
-            st.header("Add Student Record")
+            
             st.header(" ")
             st.header("")   
-            contact = st.number_input("Enter student contact",value = 12341234567,key="contact")
+            contact = st.text_input("Enter student contact",value = "03331234567",key="contact")
             fee = st.number_input("Enter student fee", value = 0,key = "fee")
-            driver_contact = st.number_input("Enter driver contact",value = 12341234567,key = "driver_contact")
+            driver_contact = st.text_input("Enter driver contact",value = "03331234567",key = "driver_contact")
             transport_fee = st.number_input("Enter transport fee",value=0,key = "transport_fee")
             uniform_dues = st.number_input("Enter uniform dues",value = 0,key = "uniform_dues")
             books_dues = st.number_input("Enter books dues",value=0,key = "books_dues")
@@ -366,7 +366,7 @@ def edit_student(col1,col2):
        new_address = st.text_input("Enter new address", value=result[7])
        new_contact = st.text_input("Enter new contact", value=result[8])
        new_fee = st.number_input("Enter new fee", value=result[9])
-       new_driver_contact = st.number_input("Enter new driver contact", value=result[10])
+       new_driver_contact = st.text_input("Enter new driver contact", value=result[10])
        new_transport_fee = st.number_input("Enter new transport fee", value=result[11])
        new_uniform_dues = st.number_input("Enter new uniform dues", value=result[12])
        new_books_dues = st.number_input("Enter new books dues", value=result[13])
@@ -614,63 +614,85 @@ def main():
     create_teacher_table()
     create_staff_table()
     st.set_page_config(page_title="Welcome to ABC School", page_icon=":school:")
-    
     col1, col2 = st.columns(2)
-    with col1:
-        st.title("School Database System")
-    menu_options = ["Home","Add Student","Add Staff","Add Teachers", "View Students","View Staff" ,"View Teachers","Edit Student","Edit Teacher","Edit Staff","Search Student","Search Teacher","Search Staff",'Delete Student','Delete Teacher','Delete Staff']
+    # Define the pages
+    PAGES = {
+        "Home": home_page,
+        "Student": lambda : student_page(col1,col2),
+        "Teacher": lambda: teacher_page(col1,col2),
+        "Staff": lambda :staff_page(col1,col2)
+    }
+
+    # Render the sidebar with page options
+    st.sidebar.title("Navigation")
+    page_choice = st.sidebar.radio("Select a page", list(PAGES.keys()))
+
+    # Call the appropriate page function based on the user's choice
+    page = PAGES[page_choice]
+    page()
+
+def home_page():
+    st.header("Welcome to My School")
+    st.write("Please select an option from the sidebar to proceed.")
+
+def student_page(col1,col2):
+    st.sidebar.title("Options")
+    menu_options = ["Add Student", "View Students", "Edit Student", "Search Student", "Delete Student"]
     choice = st.sidebar.radio("Select an option", menu_options)
-    if choice == "Home":
-        st.header("Welcome to My School")
-        st.write("Brows from side bar") 
 
-    elif choice == "Add Student":
+    if choice == "Add Student":
         add_student(col1,col2)
-
-    elif choice == "Add Staff":
-        
-        add_staff() 
-
-    elif choice == "Add Teachers":
-        add_teacher()
-    
 
     elif choice == "View Students":
         view_all_student()
-    
-    elif choice == "View Staff":
-        view_all_staff()
 
-       
-
-    elif choice == "View Teachers":
-        view_teacher()
+    elif choice == "Edit Student":
+        edit_student(col1,col2)
 
     elif choice == "Search Student":
         search_student()
 
-    elif choice == "Search Teacher":
-        search_teacher()     
+    elif choice == "Delete Student":
+        delete_student()
 
-    elif choice == "Edit Student":
-        edit_student(col1,col2)
+def teacher_page(col1,col2):
+    st.sidebar.title("Options")
+    menu_options = ["Add Teacher", "View Teachers", "Edit Teacher", "Search Teacher", "Delete Teacher"]
+    choice = st.sidebar.radio("Select an option", menu_options)
+
+    if choice == "Add Teacher":
+        add_teacher()
+
+    elif choice == "View Teachers":
+        view_teacher()
+
     elif choice == "Edit Teacher":
         edit_teacher(col1,col2)
 
-    elif choice == "Edit Staff":
-        edit_staff(col1,col2)    
-
-    elif choice == "Search Staff":
-        search_staff()   
-
-    elif choice == "Delete Student":
-        delete_student()     
+    elif choice == "Search Teacher":
+        search_teacher()
 
     elif choice == "Delete Teacher":
-        teacher_delete()    
+        teacher_delete()
+
+def staff_page(col1,col2):
+    st.sidebar.title("Options")
+    menu_options = ["Add Staff", "View Staff", "Edit Staff", "Search Staff", "Delete Staff"]
+    choice = st.sidebar.radio("Select an option", menu_options)
+
+    if choice == "Add Staff":
+        add_staff()
+
+    elif choice == "View Staff":
+        view_all_staff()
+
+    elif choice == "Edit Staff":
+        edit_staff(col1,col2)
+
+    elif choice == "Search Staff":
+        search_staff()
 
     elif choice == "Delete Staff":
-        delete_staff()     
-
+        delete_staff()
 if __name__ == "__main__":
     main()
