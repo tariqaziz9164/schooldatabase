@@ -279,7 +279,44 @@ def search_teacher():
     if not search_option:
         st.info("Please enter a teacher name or contact.")
     
-    
+#search function for staff
+def search_staff():
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    st.subheader('Search Staff Record')
+
+    search_option = st.selectbox('Search by:', ['Name', 'Contact'])
+
+    if not search_option:
+        st.warning('Please select a search option.')
+        return False
+
+    search_term = st.text_input(f'Enter staff {search_option.lower()}:')
+
+    if not search_term:
+        st.warning(f'Please enter a staff {search_option.lower()}.')
+        return False
+
+    if search_option == 'Contact':
+        c.execute('SELECT * FROM staff WHERE staff_contact = ?', (search_term,))
+        result = c.fetchone()
+
+    elif search_option == 'Name':
+        c.execute('SELECT * FROM staff WHERE staff_name = ?', (search_term,))
+        result = c.fetchone()
+
+    conn.close()
+
+    if not result:
+        st.info(f'No staff record found with {search_option.lower()} "{search_term}".')
+        return False
+
+    cols = ['ID', 'Name', 'Scall', 'Contact', 'Salary', 'Transport','Education','Age']
+    df = pd.DataFrame([result], columns=cols)
+    st.table(df)
+
+    return True   
 
 
 #edit student record function
@@ -439,6 +476,134 @@ def edit_staff(col1, col2):
         conn.close()
         st.success("Record updated successfully")
 
+#delet a student 
+def delete_student():
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    st.subheader('Delete Student Record')
+
+    search_option = st.selectbox('Delete by:', ['Name', 'Contact'])
+
+    if not search_option:
+        st.warning('Please select a delete option.')
+        return False
+
+    search_term = st.text_input(f'Enter student {search_option.lower()} to delete:')
+
+    if not search_term:
+        st.warning(f'Please enter a student {search_option.lower()} to delete.')
+        return False
+
+    if search_option == 'Contact':
+        c.execute('SELECT * FROM student WHERE contact = ?', (search_term,))
+        result = c.fetchone()
+
+    elif search_option == 'Name':
+        c.execute('SELECT * FROM student WHERE name = ?', (search_term,))
+        result = c.fetchone()
+
+    if not result:
+        st.info(f'No student record found with {search_option.lower()} "{search_term}".')
+        return False
+
+    confirm_delete = st.button(f'Confirm delete for student {result[1]} ({result[3]}-{result[4]})')
+
+    if confirm_delete:
+        c.execute('DELETE FROM student WHERE id = ?', (result[0],))
+        conn.commit()
+        st.success(f'Student record for {result[1]} ({result[3]}-{result[4]}) has been deleted.')
+        conn.close()
+        return True
+
+    conn.close()
+    return False
+
+#Delete teacher record
+def teacher_delete():
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    st.subheader('Delete Teacher Record')
+
+    search_option = st.selectbox('Delete by:', ['Name', 'Contact'])
+
+    if not search_option:
+        st.warning('Please select a delete option.')
+        return False
+
+    search_term = st.text_input(f'Enter teacher {search_option.lower()} to delete:')
+
+    if not search_term:
+        st.warning(f'Please enter a teacher {search_option.lower()} to delete.')
+        return False
+
+    if search_option == 'Contact':
+        c.execute('SELECT * FROM teacher WHERE teacher_contact = ?', (search_term,))
+        result = c.fetchone()
+
+    elif search_option == 'Name':
+        c.execute('SELECT * FROM teacher WHERE teacher_name = ?', (search_term,))
+        result = c.fetchone()
+
+    if not result:
+        st.info(f'No teacher record found with {search_option.lower()} "{search_term}".')
+        return False
+
+    confirm_delete = st.button(f'Confirm delete for teacher {result[1]} ({result[3]})')
+
+    if confirm_delete:
+        c.execute('DELETE FROM teacher WHERE id = ?', (result[0],))
+        conn.commit()
+        st.success(f'Teacher record for {result[1]} ({result[3]}) has been deleted.')
+        conn.close()
+        return True
+
+    conn.close()
+    return False
+
+#Delete staff function
+def delete_staff():
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    st.subheader('Delete Staff Record')
+
+    search_option = st.selectbox('Delete by:', ['Name', 'Contact'])
+
+    if not search_option:
+        st.warning('Please select a delete option.')
+        return False
+
+    search_term = st.text_input(f'Enter staff {search_option.lower()} to delete:')
+
+    if not search_term:
+        st.warning(f'Please enter a staff {search_option.lower()} to delete.')
+        return False
+
+    if search_option == 'Contact':
+        c.execute('SELECT * FROM staff WHERE staff_contact = ?', (search_term,))
+        result = c.fetchone()
+
+    elif search_option == 'Name':
+        c.execute('SELECT * FROM staff WHERE staff_name = ?', (search_term,))
+        result = c.fetchone()
+
+    if not result:
+        st.info(f'No staff record found with {search_option.lower()} "{search_term}".')
+        return False
+
+    confirm_delete = st.button(f'Confirm delete for staff {result[1]} ({result[3]})')
+
+    if confirm_delete:
+        c.execute('DELETE FROM staff WHERE id = ?', (result[0],))
+        conn.commit()
+        st.success(f'Staff record for {result[1]} ({result[3]}) has been deleted.')
+        conn.close()
+        return True
+
+    conn.close()
+    return False
 
 
 
@@ -453,7 +618,7 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.title("School Database System")
-    menu_options = ["Home","Add Student","Add Staff","Add Teachers", "View Students","View Staff" ,"View Teachers","Search Student","Edit Student","Edit Teacher","Edit Staff","Search Teacher"]
+    menu_options = ["Home","Add Student","Add Staff","Add Teachers", "View Students","View Staff" ,"View Teachers","Edit Student","Edit Teacher","Edit Staff","Search Student","Search Teacher","Search Staff",'Delete Student','Delete Teacher','Delete Staff']
     choice = st.sidebar.radio("Select an option", menu_options)
     if choice == "Home":
         st.header("Welcome to My School")
@@ -493,7 +658,19 @@ def main():
         edit_teacher(col1,col2)
 
     elif choice == "Edit Staff":
-        edit_staff(col1,col2)     
+        edit_staff(col1,col2)    
+
+    elif choice == "Search Staff":
+        search_staff()   
+
+    elif choice == "Delete Student":
+        delete_student()     
+
+    elif choice == "Delete Teacher":
+        teacher_delete()    
+
+    elif choice == "Delete Staff":
+        delete_staff()     
 
 if __name__ == "__main__":
     main()
