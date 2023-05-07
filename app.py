@@ -77,7 +77,7 @@ def create_staff_table():
 def add_student(col1,col2):
         
         with col1:
-            st.header("Add Student Record")
+            st.header("Add Student Record :male-student:")
             name = st.text_input("Enter student name",key="name")
             class_ = st.text_input("Enter student class",key = "class_")
             section = st.radio("Student section",['RED','BLUE','PINK','YELLOW','GREEN'],key = "section")
@@ -131,7 +131,7 @@ def add_student(col1,col2):
 
 # Add a new staff member
 def add_teacher():
-    st.subheader("Add  Teacher Record")
+    st.subheader("Add  Teacher Record :female-teacher:")
     teacher_name = st.text_input("Enter Teacher name")
     teacher_scale = st.text_input("Enter Teacher scale")
     teacher_contact = st.text_input("Enter Teacher contact")
@@ -158,7 +158,7 @@ def add_teacher():
 
 # Add a new staff member
 def add_staff():
-    st.subheader("Add Staff Record")
+    st.subheader("Add Staff Record :male-guard:")
     staff_name = st.text_input("Enter staff name")
     staff_scale = st.text_input("Enter staff scale")
     staff_contact = st.text_input("Enter staff contact")
@@ -624,7 +624,7 @@ def main():
     }
 
     # Render the sidebar with page options
-    st.sidebar.title("Navigation")
+    st.sidebar.title("Navigation :feet:")
     page_choice = st.sidebar.radio("Select a page", list(PAGES.keys()))
 
     # Call the appropriate page function based on the user's choice
@@ -632,7 +632,7 @@ def main():
     page()
 
 def home_page():
-    st.header("Welcome to My School")
+    st.header("Welcome to My School  :house:")
     st.write("Please select an option from the sidebar to proceed.")
 
 def student_page(col1,col2):
