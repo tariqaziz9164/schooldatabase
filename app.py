@@ -2,7 +2,7 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
-
+#project school database
 
 def create_student_table():
     conn = sqlite3.connect("school.db")
