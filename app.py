@@ -75,7 +75,40 @@ def create_staff_table():
 
 # Add a new student
 def add_student(col1,col2):
-        
+        #container = st.container()
+
+
+        conn = sqlite3.connect('school.db')
+        c = conn.cursor()
+
+        #total uniform dues
+        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='1'")
+        total_student_class1 = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='2'")
+        total_student_class2 = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='3'")
+        total_student_class3 = c.fetchone()[0] 
+
+        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='4'")
+        total_student_class4 = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='5'")
+        total_student_class5 = c.fetchone()[0]                               
+
+        conn.close()
+
+        st.sidebar.write("Total students in class 1")
+        st.sidebar.write(total_student_class1)
+        st.sidebar.write("Total students in class 2")
+        st.sidebar.write(total_student_class2)
+        st.sidebar.write("Total students in class 3")
+        st.sidebar.write(total_student_class3)
+        st.sidebar.write("Total students in class 4")
+        st.sidebar.write(total_student_class4)
+        st.sidebar.write("Total students in class 5")
+        st.sidebar.write(total_student_class5)                                
         with col1:
             st.header("Add Student Record :male-student:")
             name = st.text_input("Enter student name",key="name")
@@ -86,8 +119,8 @@ def add_student(col1,col2):
             teacher_name = st.text_input("Enter teacher name",key = "teacher_name")
             address = st.text_input("Enter student address")
         with col2:
+
             
-            st.header(" ")
             st.header("")   
             contact = st.text_input("Enter student contact",value = "03331234567",key="contact")
             fee = st.number_input("Enter student fee", value = 0,key = "fee")
@@ -607,33 +640,8 @@ def delete_staff():
 
 
 
-# Main function
-def main():
 
-    create_student_table()
-    create_teacher_table()
-    create_staff_table()
-    st.set_page_config(page_title="Welcome to ABC School", page_icon=":school:")
-    col1, col2 = st.columns(2)
-    # Define the pages
-    PAGES = {
-        "Home": home_page,
-        "Student": lambda : student_page(col1,col2),
-        "Teacher": lambda: teacher_page(col1,col2),
-        "Staff": lambda :staff_page(col1,col2)
-    }
 
-    # Render the sidebar with page options
-    st.sidebar.title("Navigation :feet:")
-    page_choice = st.sidebar.radio("Select a page", list(PAGES.keys()))
-
-    # Call the appropriate page function based on the user's choice
-    page = PAGES[page_choice]
-    page()
-
-def home_page():
-    st.header("Welcome to My School  :house:")
-    st.write("Please select an option from the sidebar to proceed.")
 
 def student_page(col1,col2):
     st.sidebar.title("Options")
@@ -694,5 +702,124 @@ def staff_page(col1,col2):
 
     elif choice == "Delete Staff":
         delete_staff()
+
+def home_page():
+    st.header("Welcome to My School  :house:")
+    
+
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    # Get total number of students
+    query_students = "SELECT COUNT(*) FROM student"
+    c.execute(query_students)
+    total_students = c.fetchone()[0]
+
+    # Get total number of teachers
+    query_teachers = "SELECT COUNT(*) FROM teacher"
+    c.execute(query_teachers)
+    total_teachers = c.fetchone()[0]
+
+    # Get total number of staff
+    query_staff = "SELECT COUNT(*) FROM staff"
+    c.execute(query_staff)
+    total_staff = c.fetchone()[0]
+
+    # Get total salaries of all teachers
+    query_teacher_salaries = "SELECT SUM(teacher_salary) FROM teacher"
+    c.execute(query_teacher_salaries)
+    total_teacher_salaries = c.fetchone()[0]
+
+    # Get total salaries of all staff
+    query_staff_salaries = "SELECT SUM(staff_salary) FROM staff"
+    c.execute(query_staff_salaries)
+    total_staff_salaries = c.fetchone()[0]
+
+    # Get total fee of all students
+    query_student_fees = "SELECT SUM(fee) FROM student"
+    c.execute(query_student_fees)
+    total_student_fees = c.fetchone()[0]
+
+    # Get total studentr who fee statuse is paid
+    c.execute("SELECT COUNT(*) FROM student WHERE fee_status = 'Paid'")
+    total_paid = c.fetchone()[0]
+
+    # Get total studentr who fee statuse is paid
+    c.execute("SELECT COUNT(*) FROM student WHERE fee_status = 'Unpaid'")
+    total_unpaid = c.fetchone()[0]
+
+    #total transport fee
+    c.execute("SELECT SUM(transport_fee) FROM student")
+    total_transport = c.fetchone()[0]
+
+    #total admission fee
+    c.execute("SELECT SUM(admission_fee) FROM student")
+    total_admission = c.fetchone()[0]
+
+    #total uniform dues
+    c.execute("SELECT SUM(uniform_dues) FROM student")
+    total_uniform_dues = c.fetchone()[0]
+
+    #total book dues
+    #total uniform dues
+    c.execute("SELECT SUM(books_dues) FROM student")
+    total_books_dues = c.fetchone()[0]
+
+    # Display total counts
+    st.subheader("School Statistics:")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.write("Total Students")
+        st.write(total_students)
+        st.write("Total Student Fee")
+        st.write(total_student_fees)
+        st.write("Toal student who fee is Paid")
+        st.write(total_paid)
+        st.write("Total admission fee")
+        st.write(total_admission)
+    with col2:
+        st.write("Total Teachers")
+        st.write(total_teachers)
+        st.write("Total Teacher Salaries")
+        st.write(total_teacher_salaries)
+        st.write("Toal student who fee is Unpaid")
+        st.write(total_unpaid)  
+        st.write("Total uniform dues")
+        st.write(total_uniform_dues)      
+    with col3:
+        st.write("Total Staff")
+        st.write(total_staff)
+        st.write("Total Staff Salaries")
+        st.write(total_staff_salaries)
+        st.write("Total tranport dues")
+        st.write(total_transport)
+        st.write("Total books Dues")
+        st.write(total_books_dues)
+    conn.close()
+
+# Main function
+def main():
+
+    create_student_table()
+    create_teacher_table()
+    create_staff_table()
+    st.set_page_config(page_title="Welcome to ABC School", page_icon=":school:")
+    col1, col2 = st.columns(2)
+    # Define the pages
+    PAGES = {
+        "Home": lambda : home_page(),
+        "Student": lambda : student_page(col1,col2),
+        "Teacher": lambda: teacher_page(col1,col2),
+        "Staff": lambda :staff_page(col1,col2)
+    }
+
+    # Render the sidebar with page options
+    st.sidebar.title("Navigation :feet:")
+    page_choice = st.sidebar.radio("Select a page", list(PAGES.keys()))
+
+    # Call the appropriate page function based on the user's choice
+    page = PAGES[page_choice]
+    page()    
+
 if __name__ == "__main__":
     main()
