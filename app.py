@@ -70,14 +70,7 @@ def create_staff_table():
        """)
     conn.commit()
     conn.close()
-
-
-
-# Add a new student
-def add_student(col1,col2):
-        #container = st.container()
-
-
+def student_statistic():
         conn = sqlite3.connect('school.db')
         c = conn.cursor()
 
@@ -95,21 +88,93 @@ def add_student(col1,col2):
         total_student_class4 = c.fetchone()[0]
 
         c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='5'")
-        total_student_class5 = c.fetchone()[0]                               
+        total_student_class5 = c.fetchone()[0]
 
-        conn.close()
+        c.execute("SELECT COUNT(*) AS total_paid_students_class1 FROM student WHERE class_='1' AND fee_status='Paid'")                               
+        total_student_class1_fee_paid = c.fetchone()[0]
 
-        st.sidebar.write("Total students in class 1")
-        st.sidebar.write(total_student_class1)
-        st.sidebar.write("Total students in class 2")
-        st.sidebar.write(total_student_class2)
-        st.sidebar.write("Total students in class 3")
-        st.sidebar.write(total_student_class3)
-        st.sidebar.write("Total students in class 4")
-        st.sidebar.write(total_student_class4)
-        st.sidebar.write("Total students in class 5")
-        st.sidebar.write(total_student_class5)                                
+        c.execute("SELECT COUNT(*) AS total_paid_students_class2 FROM student WHERE class_='2' AND fee_status='Paid'")                               
+        total_student_class2_fee_paid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class3 FROM student WHERE class_='3' AND fee_status='Paid'")                               
+        total_student_class3_fee_paid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class4 FROM student WHERE class_='4' AND fee_status='Paid'")                               
+        total_student_class4_fee_paid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class5 FROM student WHERE class_='5' AND fee_status='Paid'")                               
+        total_student_class5_fee_paid = c.fetchone()[0] 
+
+        #total unpaid query
+        c.execute("SELECT COUNT(*) AS total_paid_students_class1 FROM student WHERE class_='1' AND fee_status='Unpaid'")                               
+        total_student_class1_fee_unpaid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class2 FROM student WHERE class_='2' AND fee_status='Unpaid'")                               
+        total_student_class2_fee_unpaid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class3 FROM student WHERE class_='3' AND fee_status='Unpaid'")                               
+        total_student_class3_fee_unpaid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class4 FROM student WHERE class_='4' AND fee_status='Unpaid'")                               
+        total_student_class4_fee_unpaid = c.fetchone()[0]
+
+        c.execute("SELECT COUNT(*) AS total_paid_students_class5 FROM student WHERE class_='5' AND fee_status='Unpaid'")                               
+        total_student_class5_fee_unpaid = c.fetchone()[0]                                       
+
+        conn.close()  
+
+        st.header("Statistics")
+        col1,col2,col3 = st.columns(3)
+        col1.write("Total students in class 1")
+        col1.write(total_student_class1)
+        col2.write("Total students in class 2")
+        col2.write(total_student_class2)  
+        col3.write("Total students in class 3")
+        col3.write(total_student_class3)
+        col1.write("Total students in class 4")
+        col1.write(total_student_class4)
+        col1.write("___")
+        col2.write("Total students in class 5")
+        col2.write(total_student_class5)
+        col2.write("___")
+
+        col1.write("Total student of class 1 who fee is paid")
+        col1.write(total_student_class1_fee_paid) 
+        col2.write("Total student of class 2 who fee is paid")
+        col2.write(total_student_class2_fee_paid)
+        col1.write("Total student of class 3 who fee is paid")
+        col1.write(total_student_class3_fee_paid)
+        col2.write("Total student of class 4 who fee is paid")
+        col2.write(total_student_class4_fee_paid)
+        col2.header("")
+        col2.header("")
+        col2.header("")
+        col2.write("___")
+        col1.write("Total student of class 5 who fee is paid")
+        col1.write(total_student_class5_fee_paid)
+        col1.write("___") 
+
+        col1.write("Total student of class 1 who fee is unpaid")
+        col1.write(total_student_class1_fee_unpaid) 
+        col2.write("Total student of class 2 who fee is unpaid")
+        col2.write(total_student_class2_fee_unpaid)
+        col1.write("Total student of class 3 who fee is unpaid")
+        col1.write(total_student_class3_fee_unpaid)
+        col2.write("Total student of class 4 who fee is unpaid")
+        col2.write(total_student_class4_fee_unpaid)
+        col2.write("___")
+        col1.write("Total student of class 5 who fee is unpaid")
+        col1.write(total_student_class5_fee_unpaid)
+        col1.write("___")                                                          
+
+
+# Add a new student
+def add_student(col1,col2):
+
+
+                                
         with col1:
+            
             st.header("Add Student Record :male-student:")
             name = st.text_input("Enter student name",key="name")
             class_ = st.text_input("Enter student class",key = "class_")
@@ -645,10 +710,13 @@ def delete_staff():
 
 def student_page(col1,col2):
     st.sidebar.title("Options")
-    menu_options = ["Add Student", "View Students", "Edit Student", "Search Student", "Delete Student"]
+    menu_options = ["Students Statistics","Add Student", "View Students", "Edit Student", "Search Student", "Delete Student"]
     choice = st.sidebar.radio("Select an option", menu_options)
 
-    if choice == "Add Student":
+    if choice == "Students Statistics":
+        student_statistic()
+
+    elif choice == "Add Student":
         add_student(col1,col2)
 
     elif choice == "View Students":
@@ -662,6 +730,7 @@ def student_page(col1,col2):
 
     elif choice == "Delete Student":
         delete_student()
+    
 
 def teacher_page(col1,col2):
     st.sidebar.title("Options")
@@ -761,10 +830,12 @@ def home_page():
     total_uniform_dues = c.fetchone()[0]
 
     #total book dues
-    #total uniform dues
     c.execute("SELECT SUM(books_dues) FROM student")
     total_books_dues = c.fetchone()[0]
 
+    #total revenue
+    c.execute("SELECT SUM(fee + transport_fee + uniform_dues + books_dues + admission_fee + paper_money) AS total_revenue FROM student")
+    total_revenue = c.fetchone()[0]
     # Display total counts
     st.subheader("School Statistics:")
     col1, col2, col3 = st.columns(3)
@@ -777,6 +848,8 @@ def home_page():
         st.write(total_paid)
         st.write("Total admission fee")
         st.write(total_admission)
+        st.subheader("Total Revenue of all students")
+        st.write(total_revenue)
     with col2:
         st.write("Total Teachers")
         st.write(total_teachers)
