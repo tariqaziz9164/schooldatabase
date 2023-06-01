@@ -70,102 +70,118 @@ def create_staff_table():
        """)
     conn.commit()
     conn.close()
+
+# Create finance table
+def create_finance_table():
+    conn = sqlite3.connect("school.db")
+    c = conn.cursor()
+    #c.execute("DROP TABLE IF EXISTS finance")
+    c.execute("""CREATE TABLE IF NOT EXISTS finance 
+        
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            month DATE,    
+            building_rent TEXT,
+            electricity TEXT,
+            staff_food TEXT,
+            transport_fuel TEXT,
+            transport_mechanic TEXT,
+            internet_bill TEXT,
+            generator_cost TEXT,
+            advertisement TEXT,
+            other TEXT,
+            date DATE DEFAULT (date('now', 'localtime')))""")
+    conn.commit()
+    conn.close()
+
+# Add a new finance record
+def add_finance_record(month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other):
+    conn = sqlite3.connect("school.db")
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO finance (month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other))
+    conn.commit()
+    conn.close()
+    st.success("Record Added successfully") 
+
+#wieve fiana records
+def get_all_finance_records():
+    conn = sqlite3.connect("school.db")
+    df = pd.read_sql_query("SELECT * FROM finance", conn)
+    conn.close()
+    return df                                                             
+
+#Edite fiance records
+def update_finance_record(record_id, month, building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other):
+    conn = sqlite3.connect("school.db")
+    c = conn.cursor()
+    c.execute("""
+        UPDATE finance
+        SET month=?, building_rent=?, electricity=?, staff_food=?, transport_fuel=?, transport_mechanic=?, internet_bill=?, generator_cost=?, advertisement=?, other=?
+        WHERE id=?
+    """, (month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other, record_id))
+    conn.commit()
+    conn.close()
+#delete finance record
+def delete_finance_record(record_id):
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
+
+    # Delete the record from the finance table
+    c.execute("DELETE FROM finance WHERE id = ?", (record_id,))
+    
+    conn.commit()
+    conn.close()    
+
+#student statistics and analysis
 def student_statistic():
-        conn = sqlite3.connect('school.db')
-        c = conn.cursor()
+    conn = sqlite3.connect('school.db')
+    c = conn.cursor()
 
-        #total uniform dues
-        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='1'")
-        total_student_class1 = c.fetchone()[0]
+    class_numbers = ['1', '2', '3', '4', '5']
+    section = ['RED', 'BLUE','PINK','YELLOW','GREEN']
 
-        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='2'")
-        total_student_class2 = c.fetchone()[0]
+    selected_class = st.selectbox("Select Class", class_numbers)
+    selected_section = st.selectbox("Select Fee Status", section)
 
-        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='3'")
-        total_student_class3 = c.fetchone()[0] 
+    query_fee_paid = f"SELECT COUNT(*) AS total_students FROM student WHERE class_='{selected_class}' AND section='{selected_section}' AND fee_status = 'Paid'"
+    df_feepaid = pd.read_sql_query(query_fee_paid, conn)
+    #total_students_fee_paid = c.fetchone()[0]
 
-        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='4'")
-        total_student_class4 = c.fetchone()[0]
 
-        c.execute("SELECT COUNT(*) AS total_students_class1 FROM student WHERE class_='5'")
-        total_student_class5 = c.fetchone()[0]
+    query_fee_unpaid = f"SELECT COUNT(*) AS total_students FROM student WHERE class_='{selected_class}' AND section='{selected_section}' AND fee_status='Unpaid'"
+    c.execute(query_fee_unpaid)
+    total_students_fee_unpaid = c.fetchone()[0]
 
-        c.execute("SELECT COUNT(*) AS total_paid_students_class1 FROM student WHERE class_='1' AND fee_status='Paid'")                               
-        total_student_class1_fee_paid = c.fetchone()[0]
+    query_class_teacher = f"SELECT teacher_name from student WHERE class_='{selected_class}' AND section = '{selected_section}'"
+    c.execute(query_class_teacher)
+    
+    result_teacher_name = c.fetchone()
+    teacher_name = result_teacher_name[0] if result_teacher_name else "N/A"    
 
-        c.execute("SELECT COUNT(*) AS total_paid_students_class2 FROM student WHERE class_='2' AND fee_status='Paid'")                               
-        total_student_class2_fee_paid = c.fetchone()[0]
+    # Query to get total students with selected fee status
+    toalt_student_inclass = f"SELECT COUNT(*) AS total_students_fee_status FROM student WHERE class_='{selected_class}' AND section='{selected_section}'"
+    c.execute(toalt_student_inclass)
+    total_students_inclass = c.fetchone()[0]    
 
-        c.execute("SELECT COUNT(*) AS total_paid_students_class3 FROM student WHERE class_='3' AND fee_status='Paid'")                               
-        total_student_class3_fee_paid = c.fetchone()[0]
+    conn.close()
 
-        c.execute("SELECT COUNT(*) AS total_paid_students_class4 FROM student WHERE class_='4' AND fee_status='Paid'")                               
-        total_student_class4_fee_paid = c.fetchone()[0]
+    st.subheader("Students Statistics")
+    st.write("Total student in class ",selected_class," in section ",selected_section)
+    st.write(total_students_inclass)
+    st.write("Total Students in class ",selected_class,"who fee is Paid")
+    st.write(df_feepaid)
+    #st.write(total_students_fee_paid)
+    st.write()
+    st.write("Total Students in class ",selected_class,"who fee is Unpaid")
+    st.write(total_students_fee_unpaid)    
+    st.write("Teacher name ")
+    st.write(teacher_name)
+    
 
-        c.execute("SELECT COUNT(*) AS total_paid_students_class5 FROM student WHERE class_='5' AND fee_status='Paid'")                               
-        total_student_class5_fee_paid = c.fetchone()[0] 
+    return
 
-        #total unpaid query
-        c.execute("SELECT COUNT(*) AS total_paid_students_class1 FROM student WHERE class_='1' AND fee_status='Unpaid'")                               
-        total_student_class1_fee_unpaid = c.fetchone()[0]
-
-        c.execute("SELECT COUNT(*) AS total_paid_students_class2 FROM student WHERE class_='2' AND fee_status='Unpaid'")                               
-        total_student_class2_fee_unpaid = c.fetchone()[0]
-
-        c.execute("SELECT COUNT(*) AS total_paid_students_class3 FROM student WHERE class_='3' AND fee_status='Unpaid'")                               
-        total_student_class3_fee_unpaid = c.fetchone()[0]
-
-        c.execute("SELECT COUNT(*) AS total_paid_students_class4 FROM student WHERE class_='4' AND fee_status='Unpaid'")                               
-        total_student_class4_fee_unpaid = c.fetchone()[0]
-
-        c.execute("SELECT COUNT(*) AS total_paid_students_class5 FROM student WHERE class_='5' AND fee_status='Unpaid'")                               
-        total_student_class5_fee_unpaid = c.fetchone()[0]                                       
-
-        conn.close()  
-
-        st.header("Statistics")
-        col1,col2,col3 = st.columns(3)
-        col1.write("Total students in class 1")
-        col1.write(total_student_class1)
-        col2.write("Total students in class 2")
-        col2.write(total_student_class2)  
-        col3.write("Total students in class 3")
-        col3.write(total_student_class3)
-        col1.write("Total students in class 4")
-        col1.write(total_student_class4)
-        col1.write("___")
-        col2.write("Total students in class 5")
-        col2.write(total_student_class5)
-        col2.write("___")
-
-        col1.write("Total student of class 1 who fee is paid")
-        col1.write(total_student_class1_fee_paid) 
-        col2.write("Total student of class 2 who fee is paid")
-        col2.write(total_student_class2_fee_paid)
-        col1.write("Total student of class 3 who fee is paid")
-        col1.write(total_student_class3_fee_paid)
-        col2.write("Total student of class 4 who fee is paid")
-        col2.write(total_student_class4_fee_paid)
-        col2.header("")
-        col2.header("")
-        col2.header("")
-        col2.write("___")
-        col1.write("Total student of class 5 who fee is paid")
-        col1.write(total_student_class5_fee_paid)
-        col1.write("___") 
-
-        col1.write("Total student of class 1 who fee is unpaid")
-        col1.write(total_student_class1_fee_unpaid) 
-        col2.write("Total student of class 2 who fee is unpaid")
-        col2.write(total_student_class2_fee_unpaid)
-        col1.write("Total student of class 3 who fee is unpaid")
-        col1.write(total_student_class3_fee_unpaid)
-        col2.write("Total student of class 4 who fee is unpaid")
-        col2.write(total_student_class4_fee_unpaid)
-        col2.write("___")
-        col1.write("Total student of class 5 who fee is unpaid")
-        col1.write(total_student_class5_fee_unpaid)
-        col1.write("___")                                                          
 
 
 # Add a new student
@@ -223,7 +239,7 @@ def add_student(col1,col2):
                  conn.close()
                  st.success("Student added successfully")
                  return True
-    
+        
 
 
 
@@ -772,6 +788,134 @@ def staff_page(col1,col2):
     elif choice == "Delete Staff":
         delete_staff()
 
+#finance page
+def finance_page():
+    menu = ["Add Finance Records", "View Finance Records", "Update Finance Records", "Delete Finance Record"]
+    select = st.sidebar.radio("Select an option", menu)
+
+    if select == "Add Finance Records":
+        st.header("Add Finance Records")
+        month = st.date_input("Enter month")
+        building_rent = st.text_input("Building Rent")
+        electricity = st.text_input("Electricity")
+        staff_food = st.text_input("Staff Food")
+        transport_fuel = st.text_input("Transport Fuel")
+        transport_mechanic = st.text_input("Transport Mechanic")
+        internet_bill = st.text_input("Internet Bill")
+        generator_cost = st.text_input("Generator Cost")
+        advertisement = st.text_input("Advertisement")
+        other = st.text_input("Other")
+
+        if st.button("Add Record"):
+            if building_rent and electricity and internet_bill and month :
+                add_finance_record(month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other)
+            else:
+                st.warning("Please fill in all the fields.")
+
+    elif select == "View Finance Records":
+        st.header("View Finance Records")
+        record=get_all_finance_records()
+        if record.empty :
+             st.write("No records found.")
+        else:     
+            st.dataframe(record)
+
+    elif select == "Update Finance Records":
+        st.header("Update Finance Records")
+
+        # Retrieve existing finance records
+        finance_records = get_all_finance_records()
+
+        if finance_records.empty:
+            st.warning("No finance records found.")
+        else:
+            # Display the records in a table
+            st.dataframe(finance_records)
+
+            # Select the record to update
+            search = st.selectbox("select a searh option",["id","month"])
+            #record_id = int(record_id) if record_id.isdigit() else None
+      
+            if search is None :
+                st.warning("Please select a search option.")
+            else:
+                if search == "id":
+                   search_term=st.number_input("Enter an ID to search",value=1)
+                elif search == "month":
+                   search_term1=st.date_input("Select a date to search")
+                   search_term=search_term1.strftime('%Y-%m-%d')        
+                if search_term is None:
+                    st.warning("Please select search term")
+                else:    
+                    conn = sqlite3.connect('school.db')
+                    c = conn.cursor()
+                    c.execute('''SELECT * FROM finance WHERE id = ? OR DATE(month) = DATE(?)''', (search_term, search_term))
+                    result = c.fetchone()
+                    conn.close()
+                    if result is None:
+                        st.warning("No record found")
+                    else:    
+                        # Get updated values from the user
+                        month = st.date_input("select month",value=None)
+                        building_rent = st.text_input("Building Rent",value=result[2])
+                        electricity = st.text_input("Electricity",value=result[3])
+                        staff_food = st.text_input("Staff Food",value=result[4])
+                        transport_fuel = st.text_input("Transport Fuel",value=result[5])
+                        transport_mechanic = st.text_input("Transport Mechanic",value=result[6])
+                        internet_bill = st.text_input("Internet Bill",value=result[7])
+                        generator_cost = st.text_input("Generator Cost",value=result[8])
+                        advertisement = st.text_input("Advertisement",value=result[9])
+                        other = st.text_input("Other",value=result[10])
+                
+                        if st.button("Update Record"):
+                            update_finance_record(result[0],month,building_rent,electricity,staff_food,transport_fuel,transport_mechanic,internet_bill,generator_cost,advertisement,other)
+                            st.success("Record updated successfully.")
+                
+
+    elif select == "Delete Finance Record":
+            st.header("Delete Finance Record")
+
+            # Retrieve existing finance records
+            finance_records = get_all_finance_records()
+
+            if finance_records.empty:
+                st.warning("No finance records found.")
+            else:
+                # Display the records in a table
+                st.dataframe(finance_records)
+
+                # Select the record to delete
+                search = st.selectbox("Select a search option", ["id", "month"])
+
+                if search is None:
+                    st.warning("Please select a search option.")
+                else:
+                    if search == "id":
+                        search_term = st.number_input("Enter an ID to delete", value=1)
+                    elif search == "month":
+                        search_term1 = st.date_input("Select a date to delete")
+                        search_term = search_term1.strftime('%Y-%m-%d')
+
+                    if search_term is None:
+                        st.warning("Please select a search term.")
+                    else:
+                        conn = sqlite3.connect('school.db')
+                        c = conn.cursor()
+                        c.execute('''SELECT * FROM finance WHERE id = ? OR DATE(month) = DATE(?)''', (search_term, search_term))
+                        result = c.fetchone()
+                        conn.close()
+
+                        if not result:
+                            st.warning("Record not found.")
+                        else:
+                            st.info("Record to be deleted:")
+                            st.write(result)
+
+                            if st.button("Delete Record"):
+                                delete_finance_record(result[0])
+                                st.success("Record deleted successfully.")
+
+
 def home_page():
     st.header("Welcome to My School  :house:")
     
@@ -876,14 +1020,16 @@ def main():
     create_student_table()
     create_teacher_table()
     create_staff_table()
-    st.set_page_config(page_title="Welcome to ABC School", page_icon=":school:")
+    create_finance_table()
+    st.set_page_config(page_title="My School", page_icon=":school:")
     col1, col2 = st.columns(2)
     # Define the pages
     PAGES = {
         "Home": lambda : home_page(),
         "Student": lambda : student_page(col1,col2),
         "Teacher": lambda: teacher_page(col1,col2),
-        "Staff": lambda :staff_page(col1,col2)
+        "Staff": lambda :staff_page(col1,col2),
+        "Finance": lambda:finance_page()
     }
 
     # Render the sidebar with page options
