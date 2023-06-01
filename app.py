@@ -790,10 +790,43 @@ def staff_page(col1,col2):
 
 #finance page
 def finance_page():
-    menu = ["Add Finance Records", "View Finance Records", "Update Finance Records", "Delete Finance Record"]
+    menu = ["Finance Home","Add Finance Records", "View Finance Records", "Update Finance Records", "Delete Finance Record"]
     select = st.sidebar.radio("Select an option", menu)
 
-    if select == "Add Finance Records":
+
+    if select == "Finance Home":
+        st.subheader("Here is some information about school finace")
+        # Establish connection to the database
+        conn = sqlite3.connect('school.db')
+
+        # Execute the query and fetch the result into a DataFrame
+        query = "SELECT SUM(building_rent + electricity + staff_food + transport_fuel + transport_mechanic + internet_bill + generator_cost + advertisement + other) AS total_cost FROM finance"
+        df = pd.read_sql_query(query, conn)
+
+        # Close the database connection
+        
+        st.write(df)
+
+
+        # Execute the query and fetch the result into a DataFrame
+        query = "SELECT SUM(building_rent) AS building_rent_total, \
+                SUM(electricity) AS electricity_total, \
+                SUM(staff_food) AS staff_food_total, \
+                SUM(transport_fuel) AS transport_fuel_total, \
+                SUM(transport_mechanic) AS transport_mechanic_total, \
+                SUM(internet_bill) AS internet_bill_total, \
+                SUM(generator_cost) AS generator_cost_total, \
+                SUM(advertisement) AS advertisement_total, \
+                SUM(other) AS other_total \
+                FROM finance"
+        dftotal = pd.read_sql_query(query, conn)
+
+        # Close the database connection
+        conn.close()
+        st.write(dftotal)
+
+
+    elif select == "Add Finance Records":
         st.header("Add Finance Records")
         month = st.date_input("Enter month")
         building_rent = st.text_input("Building Rent")
