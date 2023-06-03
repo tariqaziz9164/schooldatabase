@@ -93,6 +93,34 @@ def create_finance_table():
     conn.commit()
     conn.close()
 
+# Connect to the database
+def fiance_record (month1):
+    conn = sqlite3.connect("school.db")
+
+    # Specify the selected month
+    selected_month = "2023-05"  # Replace with the desired month
+
+    # Execute the query and fetch the record for the selected month into a DataFrame
+    query = """
+        SELECT building_rent, electricity, staff_food, transport_fuel, transport_mechanic,
+            internet_bill, generator_cost, advertisement, other
+        FROM finance
+        WHERE month = ?
+    """
+
+    df_finance_record = pd.read_sql_query(query, conn, params=(month1,))
+
+    numeric_columns = df_finance_record.columns[0:]
+    df_finance_record[numeric_columns] = df_finance_record[numeric_columns].apply(pd.to_numeric)
+    # Calculate the total expenditure for the selected month
+    total_expenditure = df_finance_record[numeric_columns].sum().sum()
+
+    # Close the database connection
+    conn.close()
+    return total_expenditure
+
+
+
 # Add a new finance record
 def add_finance_record(month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other):
     conn = sqlite3.connect("school.db")
@@ -143,7 +171,7 @@ def student_statistic():
     section = ['RED', 'BLUE','PINK','YELLOW','GREEN']
 
     selected_class = st.selectbox("Select Class", class_numbers)
-    selected_section = st.selectbox("Select Fee Status", section)
+    selected_section = st.selectbox("Select Section", section)
 
     query_fee_paid = f"SELECT COUNT(*) AS total_students FROM student WHERE class_='{selected_class}' AND section='{selected_section}' AND fee_status = 'Paid'"
     df_feepaid = pd.read_sql_query(query_fee_paid, conn)
@@ -823,7 +851,11 @@ def finance_page():
 
         # Close the database connection
         conn.close()
+
         st.write(dftotal)
+        search = st.date_input("Select a month to calculat expenditure")
+        ddf = fiance_record (search)
+        st.write(ddf)
 
 
     elif select == "Add Finance Records":
