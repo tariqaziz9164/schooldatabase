@@ -97,8 +97,6 @@ def create_finance_table():
 def fiance_record (month1):
     conn = sqlite3.connect("school.db")
 
-    # Specify the selected month
-    selected_month = "2023-05"  # Replace with the desired month
 
     # Execute the query and fetch the record for the selected month into a DataFrame
     query = """
@@ -111,6 +109,7 @@ def fiance_record (month1):
     df_finance_record = pd.read_sql_query(query, conn, params=(month1,))
 
     numeric_columns = df_finance_record.columns[0:]
+
     df_finance_record[numeric_columns] = df_finance_record[numeric_columns].apply(pd.to_numeric)
     # Calculate the total expenditure for the selected month
     total_expenditure = df_finance_record[numeric_columns].sum().sum()
@@ -823,7 +822,7 @@ def finance_page():
 
 
     if select == "Finance Home":
-        st.subheader("Here is some information about school finace")
+        st.subheader("Here is some information about school finance")
         # Establish connection to the database
         conn = sqlite3.connect('school.db')
 
@@ -854,8 +853,9 @@ def finance_page():
 
         st.write(dftotal)
         search = st.date_input("Select a month to calculat expenditure")
-        ddf = fiance_record (search)
-        st.write(ddf)
+        df_expenditure = fiance_record (search)
+        st.write("Total school expenditure in Selected month")
+        st.write(df_expenditure)
 
 
     elif select == "Add Finance Records":
