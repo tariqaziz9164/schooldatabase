@@ -2,6 +2,17 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
+import requests
+from streamlit_lottie import st_lottie
+
+#function to handle lottie animation
+def loti(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+       return None
+    else:
+        return r.json()
+
 #project school database
 
 def create_student_table():
@@ -150,6 +161,7 @@ def update_finance_record(record_id, month, building_rent, electricity, staff_fo
     """, (month,building_rent, electricity, staff_food, transport_fuel, transport_mechanic, internet_bill, generator_cost, advertisement, other, record_id))
     conn.commit()
     conn.close()
+
 #delete finance record
 def delete_finance_record(record_id):
     conn = sqlite3.connect('school.db')
@@ -165,7 +177,7 @@ def delete_finance_record(record_id):
 def student_statistic():
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
-
+    st.subheader("Students Statistics :chart: ")
     class_numbers = ['1', '2', '3', '4', '5']
     section = ['RED', 'BLUE','PINK','YELLOW','GREEN']
 
@@ -194,7 +206,7 @@ def student_statistic():
 
     conn.close()
 
-    st.subheader("Students Statistics")
+    
     st.write("Total student in class ",selected_class," in section ",selected_section)
     st.write(total_students_inclass)
     st.write("Total Students in class ",selected_class,"who fee is Paid")
@@ -218,7 +230,7 @@ def add_student(col1,col2):
                                 
         with col1:
             
-            st.header("Add Student Record :male-student:")
+            st.subheader("Add Student Record :male-student:")
             name = st.text_input("Enter student name",key="name")
             class_ = st.text_input("Enter student class",key = "class_")
             section = st.radio("Student section",['RED','BLUE','PINK','YELLOW','GREEN'],key = "section")
@@ -229,7 +241,10 @@ def add_student(col1,col2):
         with col2:
 
             
-            st.header("")   
+            st.write("##")  
+            st.write("##")
+            
+             
             contact = st.text_input("Enter student contact",value = "03331234567",key="contact")
             fee = st.number_input("Enter student fee", value = 0,key = "fee")
             driver_contact = st.text_input("Enter driver contact",value = "03331234567",key = "driver_contact")
@@ -243,7 +258,7 @@ def add_student(col1,col2):
      
     
 
-        if st.button("Save Chang"):
+        if st.button("Save Chang :inbox_tray: "):
              if not name or not class_ or not contact:
                  st.warning("Please fill in required fields")
                  return False
@@ -327,7 +342,7 @@ def add_staff():
 
 # View all students
 def view_all_student():
-    st.subheader("All Students")
+    st.subheader("All Students :clipboard: ")
     conn = sqlite3.connect('school.db')
     df = pd.read_sql_query("SELECT * FROM student", conn)
     conn.close()
@@ -339,7 +354,7 @@ def view_all_student():
         st.table(df)
 
 def view_teacher():
-    st.subheader("All Teacher")
+    st.subheader("All Teacher :clipboard: ")
     conn = sqlite3.connect('school.db')
     df = pd.read_sql_query("SELECT * FROM teacher", conn)
     conn.close()
@@ -355,7 +370,7 @@ def view_teacher():
 
 # View all staff
 def view_all_staff():
-    st.subheader("All Staff")
+    st.subheader("All Staff :clipboard: ")
     conn = sqlite3.connect('school.db')
     df = pd.read_sql_query("SELECT * FROM staff", conn)
     conn.close()
@@ -368,7 +383,7 @@ def view_all_staff():
 
 #function for searching student
 def search_student():
-    st.subheader("Search for a student")
+    st.subheader("Search for a student :mag_right: ")
     search_term = st.text_input("Enter a student's contact or fee status:")
     
     if search_term:
@@ -425,7 +440,7 @@ def search_staff():
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
 
-    st.subheader('Search Staff Record')
+    st.subheader('Search Staff Record :magnifying_glass_tilted_right: ')
 
     search_option = st.selectbox('Search by:', ['Name', 'Contact'])
 
@@ -463,7 +478,7 @@ def search_staff():
 #edit student record function
 def edit_student(col1,col2):
     with col1:
-         st.subheader("Edit Students Records")
+         st.subheader("Edit Students Records :memo: ")
         
     conn = sqlite3.connect('school.db')
 
@@ -471,6 +486,8 @@ def edit_student(col1,col2):
     c = conn.cursor() 
 
     with col2:
+         st.write("##")
+         st.write("##")
          search_option = st.selectbox("Search by:", ["Name", "Contact"])
     with col1:
        if search_option == "Contact":
@@ -533,7 +550,7 @@ def edit_student(col1,col2):
          
 def edit_teacher(col1, col2):
     with col1:
-        st.subheader("Edit Teacher Records")
+        st.subheader("Edit Teacher Records :mag_right: ")
 
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
@@ -622,7 +639,7 @@ def delete_student():
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
 
-    st.subheader('Delete Student Record')
+    st.subheader("Delete Student Record :plunger: ")
 
     search_option = st.selectbox('Delete by:', ['Name', 'Contact'])
 
@@ -823,16 +840,34 @@ def finance_page():
 
     if select == "Finance Home":
         st.subheader("Here is some information about school finance")
+
+
+
         # Establish connection to the database
         conn = sqlite3.connect('school.db')
+        c = conn.cursor()
+        # Execute the query and fetch the result into a DataFrame
+        query_expens = "SELECT SUM(building_rent + electricity + staff_food + transport_fuel + transport_mechanic + internet_bill + generator_cost + advertisement + other) AS total_cost FROM finance"
+        df_expenditure = pd.read_sql_query(query_expens, conn)
 
         # Execute the query and fetch the result into a DataFrame
-        query = "SELECT SUM(building_rent + electricity + staff_food + transport_fuel + transport_mechanic + internet_bill + generator_cost + advertisement + other) AS total_cost FROM finance"
-        df = pd.read_sql_query(query, conn)
+        query_student_all_dues = "SELECT SUM(fee + transport_fee + uniform_dues + books_dues + admission_fee + paper_money ) AS total_student_dues FROM student"
+        df_total_student_dues = pd.read_sql_query(query_student_all_dues, conn) 
 
-        # Close the database connection
+        # Query to grab and add all teachers' salaries
+        c.execute("SELECT SUM(teacher_salary) FROM teacher")
+        teachers_salary_total = c.fetchone()[0]
+
+        # Query to grab and add all staff salaries
+        c.execute("SELECT SUM(staff_salary) FROM staff")
+        staff_salary_total = c.fetchone()[0]   
+
+        st.write("Total Teacher salaries",teachers_salary_total)
+        st.write("Total Staff salaries",staff_salary_total)    
+
+        st.write("Total Deus of all students",df_total_student_dues)
         
-        st.write(df)
+        st.write("Total expenditure of school",df_expenditure )
 
 
         # Execute the query and fetch the result into a DataFrame
@@ -982,8 +1017,15 @@ def finance_page():
 
 
 def home_page():
-    st.header("Welcome to My School  :house:")
-    
+    st.header("Welcome Admin   :man:")
+
+    #loti_student = loti("https://assets2.lottiefiles.com/packages/lf20_ei2gf306.json")
+    #st_lottie(loti_student,height=300)
+    loti_finance = loti("https://assets3.lottiefiles.com/packages/lf20_yMpiqXia1k.json")
+    st_lottie(loti_finance,height=300)    
+
+
+
 
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
@@ -1046,7 +1088,7 @@ def home_page():
     c.execute("SELECT SUM(fee + transport_fee + uniform_dues + books_dues + admission_fee + paper_money) AS total_revenue FROM student")
     total_revenue = c.fetchone()[0]
     # Display total counts
-    st.subheader("School Statistics:")
+    st.subheader("School Statistics :bar_chart: ")
     col1, col2, col3 = st.columns(3)
     with col1:
         st.write("Total Students")
@@ -1057,7 +1099,7 @@ def home_page():
         st.write(total_paid)
         st.write("Total admission fee")
         st.write(total_admission)
-        st.subheader("Total Revenue of all students")
+        st.subheader("Total Revenue of all students :chart: ")
         st.write(total_revenue)
     with col2:
         st.write("Total Teachers")
@@ -1086,6 +1128,7 @@ def main():
     create_teacher_table()
     create_staff_table()
     create_finance_table()
+
     st.set_page_config(page_title="My School", page_icon=":school:")
     col1, col2 = st.columns(2)
     # Define the pages
