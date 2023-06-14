@@ -839,7 +839,7 @@ def finance_page():
 
 
     if select == "Finance Home":
-        st.subheader("Here is some information about school finance")
+        st.subheader("Here is some information about school finance :bar_chart:")
 
 
 
@@ -1017,15 +1017,21 @@ def finance_page():
 
 
 def home_page():
-    st.header("Welcome Admin   :man:")
+    
 
     #loti_student = loti("https://assets2.lottiefiles.com/packages/lf20_ei2gf306.json")
     #st_lottie(loti_student,height=300)
     loti_finance = loti("https://assets3.lottiefiles.com/packages/lf20_yMpiqXia1k.json")
-    st_lottie(loti_finance,height=300)    
-
-
-
+        
+    col11,col22 = st.columns([1,2])
+    with col11:
+        st.write("##")
+        st.write("##")
+        st.write("##")
+        st.header("Welcome Admin   :man:")
+    with col22:
+            
+        st_lottie(loti_finance,height=300)
 
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
@@ -1099,7 +1105,7 @@ def home_page():
         st.write(total_paid)
         st.write("Total admission fee")
         st.write(total_admission)
-        st.subheader("Total Revenue of all students :chart: ")
+        st.write("### Total Revenue of all students :chart: ")
         st.write(total_revenue)
     with col2:
         st.write("Total Teachers")
