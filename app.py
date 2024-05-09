@@ -1,7 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import streamlit_lottie
+
 import requests
 from streamlit_lottie import st_lottie
 
