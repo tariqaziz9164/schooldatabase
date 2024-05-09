@@ -1029,7 +1029,7 @@ def home_page():
         st.write("##")
         st.write("##")
         st.header("Welcome Admin   :man:")
-    with col22:
+    #with col22:
             
         #st_lottie(loti_finance,height=300)
 
