@@ -1031,7 +1031,7 @@ def home_page():
         st.header("Welcome Admin   :man:")
     with col22:
             
-        st_lottie(loti_finance,height=300)
+        #st_lottie(loti_finance,height=300)
 
     conn = sqlite3.connect('school.db')
     c = conn.cursor()
