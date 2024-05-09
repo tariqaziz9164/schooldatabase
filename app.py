@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 
 import requests
-from streamlit_lottie import st_lottie
+#from streamlit_lottie import st_lottie
 
 #function to handle lottie animation
 def loti(url):
